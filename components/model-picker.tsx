@@ -1,6 +1,5 @@
 "use client";
 import {} from "@radix-ui/react-select";
-import Image from "next/image";
 import type { FC } from "react";
 
 import {
@@ -10,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeepSeek } from "@/components/deepseek";
 
 const models = [
   {
@@ -28,7 +26,6 @@ export const ModelPicker: FC = () => {
         {models.map((model) => (
           <SelectItem key={model.value} value={model.value}>
             <span className="flex items-center gap-2">
-              <DeepSeek />
               <span>{model.name}</span>
             </span>
           </SelectItem>

@@ -5,7 +5,7 @@ import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createAI, getMutableAIState, streamUI } from "ai/rsc";
 import type { ReactNode } from "react";
 import { z } from "zod";
-import { wrapLanguageModel, extractReasoningMiddleware } from "ai";
+import { wrapLanguageModel } from "ai";
 
 export interface ServerMessage {
   role: "user" | "assistant";
@@ -22,7 +22,7 @@ export async function continueConversation(
   apiKeys: {
     fireworks: string;
     together?: string;
-  },
+  }
 ): Promise<{
   lowMessage: ClientMessage;
   message: ClientMessage;
@@ -38,11 +38,11 @@ export async function continueConversation(
 
   const lowModeResults = await streamUI({
     model: wrapLanguageModel({
-      // @ts-ignore ai sdk types are not updated for @ai-sdk/fireworks v0.1.11
+      // @ts-expect-error ai sdk types are not updated for @ai-sdk/fireworks v0.1.11
       model: fireworks("accounts/fireworks/models/deepseek-r1"),
     }),
     providerOptions: {
-      // @ts-ignore ai sdk does not support this option
+      // @ts-expect-error ai sdk does not support this option
       reasoning_effort: "low",
     },
     messages: [...history.get().lowMessage, { role: "user", content: input }],
@@ -56,7 +56,7 @@ export async function continueConversation(
           }) => ({
             ...models,
             lowMessage: [...models.lowMessage, { role: "assistant", content }],
-          }),
+          })
         );
       }
 
@@ -67,7 +67,7 @@ export async function continueConversation(
             {thinkIndex
               ? content.substring(
                   0,
-                  thinkIndex > 0 ? thinkIndex + 9 : content.length,
+                  thinkIndex > 0 ? thinkIndex + 9 : content.length
                 )
               : content}
           </div>
@@ -82,7 +82,7 @@ export async function continueConversation(
   });
 
   const stdModeResults = await streamUI({
-    // @ts-ignore ai sdk types are not updated for @ai-sdk/fireworks v0.1.11
+    // @ts-expect-error ai sdk types are not updated for @ai-sdk/fireworks v0.1.11
     model: fireworks("accounts/fireworks/models/deepseek-r1"),
     messages: [...history.get().lowMessage, { role: "user", content: input }],
     text: ({ content, done }) => {
@@ -95,7 +95,7 @@ export async function continueConversation(
           }) => ({
             ...models,
             lowMessage: [...models.lowMessage, { role: "assistant", content }],
-          }),
+          })
         );
       }
       const thinkIndex = content.indexOf("</think>");
@@ -105,7 +105,7 @@ export async function continueConversation(
             {thinkIndex
               ? content.substring(
                   0,
-                  thinkIndex > 0 ? thinkIndex + 9 : content.length,
+                  thinkIndex > 0 ? thinkIndex + 9 : content.length
                 )
               : content}
           </div>
@@ -126,7 +126,7 @@ export async function continueConversation(
     });
 
     togetherModeResults = await streamUI({
-      // @ts-ignore ai sdk types are not updated for @ai-sdk/togetherai SDK
+      // @ts-expect-error ai sdk types are not updated for @ai-sdk/togetherai SDK
       model: togetherai("deepseek-ai/DeepSeek-R1"),
       messages: [...history.get().lowMessage, { role: "user", content: input }],
       text: ({ content, done }) => {
@@ -142,7 +142,7 @@ export async function continueConversation(
                 ...models.lowMessage,
                 { role: "assistant", content },
               ],
-            }),
+            })
           );
         }
 
@@ -153,7 +153,7 @@ export async function continueConversation(
               {thinkIndex
                 ? content.substring(
                     0,
-                    thinkIndex > 0 ? thinkIndex + 9 : content.length,
+                    thinkIndex > 0 ? thinkIndex + 9 : content.length
                   )
                 : content}
             </div>
@@ -222,7 +222,7 @@ export async function listModels({
         headers: {
           Authorization: `Bearer ${apiKeys.fireworks}`,
         },
-      },
+      }
     );
 
     if (!fireworksResponse.ok) {
@@ -239,7 +239,7 @@ export async function listModels({
           headers: {
             Authorization: `Bearer ${apiKeys.together}`,
           },
-        },
+        }
       );
 
       if (!togetherResponse.ok) {

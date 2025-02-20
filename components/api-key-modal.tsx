@@ -62,9 +62,7 @@ export function ApiKeyModal() {
       let validated: ApiKeys;
       try {
         validated = apiKeySchema.parse({
-          // @ts-ignore
           fireworks: e.currentTarget.fireworks.value,
-          // @ts-ignore
           together: e.currentTarget.together.value,
         }) as ApiKeys;
       } catch (error) {
