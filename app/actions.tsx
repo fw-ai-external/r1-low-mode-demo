@@ -6,7 +6,6 @@ import { createAI, getMutableAIState, streamUI } from "ai/rsc";
 import type { ReactNode } from "react";
 import { z } from "zod";
 import { wrapLanguageModel } from "ai";
-import { ActionBarPrimitive } from "@assistant-ui/react";
 
 export interface ServerMessage {
   role: "user" | "assistant";
