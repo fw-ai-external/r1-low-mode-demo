@@ -26,6 +26,8 @@ const MyRuntimeProvider = () => {
   const { continueConversation } = useActions();
   const [isRunning, setIsRunning] = useState(false);
   const [messages, setMessages] = useUIState<typeof AI>();
+  const [fwError, setFwError] = useState<string | null>(null);
+  const [togetherError, setTogetherError] = useState<string | null>(null);
 
   const onNew = async (m: AppendMessage) => {
     if (m.content[0]?.type !== "text")
@@ -49,8 +51,16 @@ const MyRuntimeProvider = () => {
 
     try {
       setIsRunning(true);
-      const { lowMessage, message, togetherMessage } =
+      const { lowMessage, message, togetherMessage, fwError, togetherError } =
         await continueConversation(newMessage.display, apiKeys);
+
+      if (fwError) {
+        setFwError(fwError);
+      }
+      if (togetherError) {
+        setTogetherError(togetherError);
+      }
+
       setMessages((currentConversation) => ({
         ...currentConversation,
         lowMessage: [...currentConversation.lowMessage, lowMessage],
@@ -105,6 +115,7 @@ const MyRuntimeProvider = () => {
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
                 <strong>DeepSeek R1 Low Mode (NEW)</strong>
+                {fwError && <div className="text-red-500">{fwError}</div>}
               </div>
               <Thread model={models[0]} />
             </div>
@@ -117,6 +128,7 @@ const MyRuntimeProvider = () => {
                 <strong>DeepSeek R1</strong>
               </div>
               <Thread model={models[1]} />
+              {fwError && <div className="text-red-500">{fwError}</div>}
             </div>
           </AssistantRuntimeProvider>
         </Card>
@@ -126,7 +138,11 @@ const MyRuntimeProvider = () => {
               <div className="text-md pl-6 pt-6 text-gray-500">
                 <strong>DeepSeek R1 on Together AI</strong>
               </div>
+
               <Thread model={models[2]} />
+              {togetherError && (
+                <div className="text-red-500">{togetherError}</div>
+              )}
             </div>
           </AssistantRuntimeProvider>
         </Card>

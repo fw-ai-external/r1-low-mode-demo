@@ -60,6 +60,8 @@ export function ApiKeyModal() {
     (async () => {
       setIsValidating(true);
       let validated: ApiKeys;
+      const savedKeys = localStorage.getItem("apiKeys");
+      const parsedSavedKeys = savedKeys ? JSON.parse(savedKeys || "{}") : null;
       try {
         validated = apiKeySchema.parse({
           fireworks: e.currentTarget.fireworks.value,
@@ -83,6 +85,7 @@ export function ApiKeyModal() {
       if (result.error) {
         if (
           validated.fireworks &&
+          !parsedSavedKeys?.fireworks &&
           (!result.fireworks || !result.fireworks.length)
         ) {
           setErrors((prev) => ({
