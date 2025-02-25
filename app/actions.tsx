@@ -104,7 +104,7 @@ export async function continueConversation(
       model: fireworks("accounts/fireworks/models/deepseek-r1"),
       messages: [...history.get().lowMessage, { role: "user", content: input }],
 
-      text: ({ content, done, delta }) => {
+      text: ({ content, done }) => {
         if (done) {
           history.done(
             (models: {
