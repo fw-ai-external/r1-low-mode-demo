@@ -13,6 +13,7 @@ import { useVercelRSCRuntime } from "@assistant-ui/react-ai-sdk";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { ApiKeyModal } from "@/components/api-key-modal";
+export const maxDuration = 300; // This function can run for a maximum of 300 seconds
 
 export default function Home() {
   return (
