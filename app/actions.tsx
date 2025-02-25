@@ -38,6 +38,10 @@ export async function continueConversation(
 
   const fireworks = createFireworks({
     apiKey: apiKeys.fireworks,
+    fetch: (url, options) => {
+      console.log("fetching", url, options.body);
+      return fetch(url, options);
+    },
   });
 
   let lowModeResults: Awaited<ReturnType<typeof streamUI>> | null = null;
@@ -50,8 +54,9 @@ export async function continueConversation(
         model: fireworks("accounts/fireworks/models/deepseek-r1"),
       }),
       providerOptions: {
-        // @ts-expect-error ai sdk does not support this option
-        reasoning_effort: "low",
+        fireworks: {
+          reasoning_effort: "low",
+        },
       },
       messages: [...history.get().lowMessage, { role: "user", content: input }],
 
