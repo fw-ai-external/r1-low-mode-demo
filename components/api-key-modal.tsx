@@ -20,7 +20,7 @@ const apiKeySchema = z.object({
 
 type ApiKeys = {
   fireworks: string | null;
-  together?: string | null;
+  openai?: string | null;
 };
 
 export function ApiKeyModal() {
@@ -29,7 +29,7 @@ export function ApiKeyModal() {
   const [open, setOpen] = useState(false);
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
     fireworks: null,
-    together: null,
+    openai: null,
   });
   const [errors, setErrors] = useState<{
     fireworks?: string;
@@ -65,7 +65,7 @@ export function ApiKeyModal() {
       try {
         validated = apiKeySchema.parse({
           fireworks: e.currentTarget.fireworks.value,
-          together: e.currentTarget.together.value,
+          openai: e.currentTarget.openai.value,
         }) as ApiKeys;
       } catch (error) {
         if (error instanceof z.ZodError) {
@@ -80,7 +80,7 @@ export function ApiKeyModal() {
       // Test Fireworks API key
       const result = await listModels({
         fireworksAPIKey: validated.fireworks,
-        togetherAPIKey: validated.together,
+        openaiAPIKey: validated.openai,
       });
       if (result.error) {
         if (
@@ -93,13 +93,10 @@ export function ApiKeyModal() {
             fireworks: `Invalid Fireworks API key: ${result.error}`,
           }));
         }
-        if (
-          validated.together &&
-          (!result.together || !result.together.length)
-        ) {
+        if (validated.openai && (!result.openai || !result.openai.length)) {
           setErrors((prev) => ({
             ...prev,
-            together: `Invalid Together AI API key: ${result.error}`,
+            openai: `Invalid OpenAI API key: ${result.error}`,
           }));
         }
         setIsValidating(false);
@@ -154,14 +151,14 @@ export function ApiKeyModal() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="together">Together AI API Key (Optional)</Label>
+            <Label htmlFor="openai">OpenAI API Key (Optional)</Label>
             <Input
-              id="together"
+              id="openai"
               type="password"
-              value={apiKeys.together ?? ""}
+              value={apiKeys.openai ?? ""}
               disabled={isValidating}
               onChange={(e) =>
-                setApiKeys((prev) => ({ ...prev, together: e.target.value }))
+                setApiKeys((prev) => ({ ...prev, openai: e.target.value }))
               }
               placeholder="Enter your Together AI API key (optional)"
               className={errors.together ? "border-red-500" : ""}

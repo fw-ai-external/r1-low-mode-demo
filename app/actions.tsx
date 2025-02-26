@@ -1,7 +1,7 @@
 "use server";
 
 import { createFireworks } from "@ai-sdk/fireworks";
-import { createTogetherAI } from "@ai-sdk/togetherai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { createAI, getMutableAIState, streamUI } from "ai/rsc";
 import type { ReactNode } from "react";
 import { z } from "zod";
@@ -21,19 +21,19 @@ export async function continueConversation(
   input: string,
   apiKeys: {
     fireworks: string;
-    together?: string | null;
+    openai?: string | null;
   }
 ): Promise<{
   lowMessage: ClientMessage;
   message: ClientMessage;
-  togetherMessage: ClientMessage;
+  openaiMessage: ClientMessage;
   fwError: string | null;
-  togetherError: string | null;
+  openaiError: string | null;
 }> {
   "use server";
 
   let fwError: string | null = null;
-  let togetherError: string | null = null;
+  let openaiError: string | null = null;
   const history = getMutableAIState();
 
   const fireworks = createFireworks({
@@ -156,16 +156,16 @@ export async function continueConversation(
     fwError = error instanceof Error ? error.message : null;
   }
 
-  let togetherModeResults: unknown;
-  if (apiKeys.together) {
+  let openaiResults: unknown;
+  if (apiKeys.openai) {
     try {
-      const togetherai = createTogetherAI({
-        apiKey: apiKeys.together,
+      const openai = createOpenAI({
+        apiKey: apiKeys.openai,
       });
       const startTime = Date.now();
-      togetherModeResults = await streamUI({
-        // @ts-expect-error ai sdk types are not updated for @ai-sdk/togetherai SDK
-        model: togetherai("deepseek-ai/DeepSeek-R1"),
+      openaiResults = await streamUI({
+        // @ts-expect-error ai sdk types are not updated for @ai-sdk/openai SDK
+        model: openai("o3-mini"),
         messages: [
           ...history.get().lowMessage,
           { role: "user", content: input },
@@ -218,7 +218,7 @@ export async function continueConversation(
       });
     } catch (error) {
       console.error(error);
-      togetherError = error instanceof Error ? error.message : null;
+      openaiError = error instanceof Error ? error.message : null;
     }
   }
 
@@ -231,42 +231,42 @@ export async function continueConversation(
       role: "assistant",
       display: stdModeResults ? stdModeResults.value : null,
     },
-    togetherMessage: {
+    openaiMessage: {
       role: "assistant",
       display:
-        typeof togetherModeResults === "object" &&
-        togetherModeResults !== null &&
-        "value" in togetherModeResults
-          ? (togetherModeResults.value as ReactNode)
+        typeof openaiResults === "object" &&
+        openaiResults !== null &&
+        "value" in openaiResults
+          ? (openaiResults.value as ReactNode)
           : (null as unknown as ReactNode),
     },
     fwError,
-    togetherError,
+    openaiError,
   };
 }
 
 export async function listModels({
   fireworksAPIKey,
-  togetherAPIKey,
+  openaiAPIKey,
 }: {
   fireworksAPIKey: string;
-  togetherAPIKey: string;
+  openaiAPIKey: string;
 }) {
   "use server";
 
   const apiKeySchema = z.object({
     fireworks: z.string().min(1, "Fireworks API key is required"),
-    together: z.string().optional(),
+    openai: z.string().optional(),
   });
 
   const apiKeys = apiKeySchema.parse({
     fireworks: fireworksAPIKey,
-    together: togetherAPIKey,
+    openai: openaiAPIKey,
   });
 
   const results = {
     fireworks: [],
-    together: [],
+    openai: [],
     error: null as string | null,
   };
 
@@ -287,22 +287,19 @@ export async function listModels({
 
     results.fireworks = await fireworksResponse.json();
 
-    // Test Together API if key exists
-    if (apiKeys.together) {
-      const togetherResponse = await fetch(
-        "https://api.together.xyz/v1/models",
-        {
-          headers: {
-            Authorization: `Bearer ${apiKeys.together}`,
-          },
-        }
-      );
+    // Test OpenAI API if key exists
+    if (apiKeys.openai) {
+      const openaiResponse = await fetch("https://api.openai.com/v1/models", {
+        headers: {
+          Authorization: `Bearer ${apiKeys.openai}`,
+        },
+      });
 
-      if (!togetherResponse.ok) {
-        throw new Error(`Together API error: ${togetherResponse.statusText}`);
+      if (!openaiResponse.ok) {
+        throw new Error(`OpenAI API error: ${openaiResponse.statusText}`);
       }
 
-      results.together = await togetherResponse.json();
+      results.openai = await openaiResponse.json();
     }
 
     return results;
@@ -317,12 +314,12 @@ export const AI = createAI<
   {
     lowMessage: ServerMessage[];
     message: ServerMessage[];
-    togetherMessage: ServerMessage[];
+    openaiMessage: ServerMessage[];
   },
   {
     lowMessage: ClientMessage[];
     message: ClientMessage[];
-    togetherMessage: ClientMessage[];
+    openaiMessage: ClientMessage[];
   }
 >({
   actions: {
@@ -332,11 +329,11 @@ export const AI = createAI<
   initialAIState: {
     lowMessage: [],
     message: [],
-    togetherMessage: [],
+    openaiMessage: [],
   },
   initialUIState: {
     lowMessage: [],
     message: [],
-    togetherMessage: [],
+    openaiMessage: [],
   },
 });

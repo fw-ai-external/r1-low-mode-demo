@@ -28,7 +28,7 @@ const MyRuntimeProvider = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [messages, setMessages] = useUIState<typeof AI>();
   const [fwError, setFwError] = useState<string | null>(null);
-  const [togetherError, setTogetherError] = useState<string | null>(null);
+  const [openaiError, setOpenaiError] = useState<string | null>(null);
 
   const onNew = async (m: AppendMessage) => {
     if (m.content[0]?.type !== "text")
@@ -46,30 +46,27 @@ const MyRuntimeProvider = () => {
         ...currentConversation,
         lowMessage: [...currentConversation.lowMessage, newMessage],
         message: [...currentConversation.message, newMessage],
-        togetherMessage: [...currentConversation.togetherMessage, newMessage],
+        openaiMessage: [...currentConversation.openaiMessage, newMessage],
       };
     });
 
     try {
       setIsRunning(true);
-      const { lowMessage, message, togetherMessage, fwError, togetherError } =
+      const { lowMessage, message, openaiMessage, fwError, openaiError } =
         await continueConversation(newMessage.display, apiKeys);
 
       if (fwError) {
         setFwError(fwError);
       }
-      if (togetherError) {
-        setTogetherError(togetherError);
+      if (openaiError) {
+        setOpenaiError(openaiError);
       }
 
       setMessages((currentConversation) => ({
         ...currentConversation,
         lowMessage: [...currentConversation.lowMessage, lowMessage],
         message: [...currentConversation.message, message],
-        togetherMessage: [
-          ...currentConversation.togetherMessage,
-          togetherMessage,
-        ],
+        openaiMessage: [...currentConversation.openaiMessage, openaiMessage],
       }));
     } finally {
       setIsRunning(false);
@@ -86,8 +83,8 @@ const MyRuntimeProvider = () => {
     isRunning,
     onNew,
   });
-  const runtimeTogether = useVercelRSCRuntime({
-    messages: messages.togetherMessage,
+  const runtimeOpenai = useVercelRSCRuntime({
+    messages: messages.openaiMessage,
     isRunning,
     onNew,
   });
@@ -99,9 +96,9 @@ const MyRuntimeProvider = () => {
     },
     { name: "DeepSeek R1", model: "deepseek-r1", provider: "fireworks" },
     {
-      name: "DeepSeek R1 on Together AI",
-      model: "deepseek-r1-together-ai",
-      provider: "together",
+      name: "OpenAI o3-mini",
+      model: "o3-mini",
+      provider: "openai",
     },
   ] as const;
 
@@ -115,7 +112,7 @@ const MyRuntimeProvider = () => {
           <AssistantRuntimeProvider runtime={runtimeLow}>
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
-                <strong>DeepSeek R1 Low Mode (NEW)</strong>
+                <strong>R1 Low Mode (NEW)</strong>
                 {fwError && <div className="text-red-500">{fwError}</div>}
               </div>
               <Thread model={models[0]} />
@@ -126,7 +123,7 @@ const MyRuntimeProvider = () => {
           <AssistantRuntimeProvider runtime={runtime}>
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
-                <strong>DeepSeek R1</strong>
+                <strong>OpenAI o3-mini</strong>
               </div>
               <Thread model={models[1]} />
               {fwError && <div className="text-red-500">{fwError}</div>}
@@ -134,16 +131,14 @@ const MyRuntimeProvider = () => {
           </AssistantRuntimeProvider>
         </Card>
         <Card className="flex h-full w-1/3 flex-col">
-          <AssistantRuntimeProvider runtime={runtimeTogether}>
+          <AssistantRuntimeProvider runtime={runtimeOpenai}>
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
-                <strong>DeepSeek R1 on Together AI</strong>
+                <strong>OpenAI o3-mini</strong>
               </div>
 
               <Thread model={models[2]} />
-              {togetherError && (
-                <div className="text-red-500">{togetherError}</div>
-              )}
+              {openaiError && <div className="text-red-500">{openaiError}</div>}
             </div>
           </AssistantRuntimeProvider>
         </Card>
