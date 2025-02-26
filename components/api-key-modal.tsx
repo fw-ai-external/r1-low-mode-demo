@@ -33,7 +33,7 @@ export function ApiKeyModal() {
   });
   const [errors, setErrors] = useState<{
     fireworks?: string;
-    together?: string;
+    openai?: string;
   }>({});
   const [isFirstOpen, setIsFirstOpen] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -160,11 +160,11 @@ export function ApiKeyModal() {
               onChange={(e) =>
                 setApiKeys((prev) => ({ ...prev, openai: e.target.value }))
               }
-              placeholder="Enter your Together AI API key (optional)"
-              className={errors.together ? "border-red-500" : ""}
+              placeholder="Enter your OpenAI API key (optional)"
+              className={errors.openai ? "border-red-500" : ""}
             />
-            {errors.together && (
-              <p className="text-sm text-red-500">{errors.together}</p>
+            {errors.openai && (
+              <p className="text-sm text-red-500">{errors.openai}</p>
             )}
           </div>
           <div className="flex justify-end space-x-2">
