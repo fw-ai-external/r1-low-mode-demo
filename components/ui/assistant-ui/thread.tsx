@@ -48,7 +48,7 @@ const ThreadEmpty: FC<{
       <Avatar>
         <AvatarImage src={`/providers/${model.provider}.png`} />
         <AvatarFallback>
-          {model.provider === "fireworks" ? "FW" : "T"}
+          {model.provider === "fireworks" ? "FW" : "O3"}
         </AvatarFallback>
       </Avatar>
       <p className="mt-4 text-xl">{model.name}</p>
