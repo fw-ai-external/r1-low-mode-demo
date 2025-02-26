@@ -112,7 +112,7 @@ const MyRuntimeProvider = () => {
           <AssistantRuntimeProvider runtime={runtimeLow}>
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
-                <strong>R1 Low Mode (NEW)</strong>
+                <strong>R1 on Fireworks -- Low Mode (NEW)</strong>
                 {fwError && <div className="text-red-500">{fwError}</div>}
               </div>
               <Thread model={models[0]} />
@@ -123,7 +123,7 @@ const MyRuntimeProvider = () => {
           <AssistantRuntimeProvider runtime={runtime}>
             <div className="flex h-full flex-col">
               <div className="text-md pl-6 pt-6 text-gray-500">
-                <strong>OpenAI O3-mini</strong>
+                <strong>R1 on Fireworks</strong>
               </div>
               <Thread model={models[1]} />
               {fwError && <div className="text-red-500">{fwError}</div>}
