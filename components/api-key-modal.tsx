@@ -15,7 +15,7 @@ import { useActions } from "ai/rsc";
 
 const apiKeySchema = z.object({
   fireworks: z.string().min(1, "Fireworks API key is required"),
-  together: z.string().optional(),
+  openai: z.string().optional(),
 });
 
 type ApiKeys = {
@@ -62,6 +62,7 @@ export function ApiKeyModal() {
       let validated: ApiKeys;
       const savedKeys = localStorage.getItem("apiKeys");
       const parsedSavedKeys = savedKeys ? JSON.parse(savedKeys || "{}") : null;
+
       try {
         validated = apiKeySchema.parse({
           fireworks: e.currentTarget.fireworks.value,

@@ -154,6 +154,7 @@ export async function continueConversation(
   }
 
   let openaiResults: unknown;
+
   if (apiKeys.openai) {
     try {
       const openai = createOpenAI({
