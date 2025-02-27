@@ -66,7 +66,7 @@ export async function continueConversation(
             (models: {
               lowMessage: ServerMessage[];
               message: ServerMessage[];
-              togetherMessage: ServerMessage[];
+              openaiMessage: ServerMessage[];
             }) => ({
               ...models,
               lowMessage: [
@@ -107,7 +107,7 @@ export async function continueConversation(
     stdModeResults = await streamUI({
       // @ts-expect-error ai sdk types are not updated for @ai-sdk/fireworks v0.1.11
       model: fireworks("accounts/fireworks/models/deepseek-r1"),
-      messages: [...history.get().lowMessage, { role: "user", content: input }],
+      messages: [...history.get().message, { role: "user", content: input }],
 
       text: ({ content, done }) => {
         if (done) {
@@ -115,13 +115,10 @@ export async function continueConversation(
             (models: {
               lowMessage: ServerMessage[];
               message: ServerMessage[];
-              togetherMessage: ServerMessage[];
+              openaiMessage: ServerMessage[];
             }) => ({
               ...models,
-              lowMessage: [
-                ...models.lowMessage,
-                { role: "assistant", content },
-              ],
+              message: [...models.message, { role: "assistant", content }],
             })
           );
         }
@@ -167,7 +164,7 @@ export async function continueConversation(
         // @ts-expect-error ai sdk types are not updated for @ai-sdk/openai SDK
         model: openai("o3-mini"),
         messages: [
-          ...history.get().lowMessage,
+          ...history.get().openaiMessage,
           { role: "user", content: input },
         ],
 
@@ -177,11 +174,11 @@ export async function continueConversation(
               (models: {
                 lowMessage: ServerMessage[];
                 message: ServerMessage[];
-                togetherMessage: ServerMessage[];
+                openaiMessage: ServerMessage[];
               }) => ({
                 ...models,
-                lowMessage: [
-                  ...models.lowMessage,
+                openaiMessage: [
+                  ...models.openaiMessage,
                   {
                     role: "assistant",
                     content,
